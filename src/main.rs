@@ -10,19 +10,20 @@ fn main() {
                 match stream {
                     Ok(stream) => {
                         let mut buf = [0; 1000];
-                        match stream.peek(&mut buf) {
-                            Ok(size) => println!("Read {} bytes", size),
-                            Err(error) =>  println!("ERROR reading bytes: {}", error)
+                        let size = match stream.peek(&mut buf) {
+                            Ok(size) => size,
+                            Err(error) =>  panic!("ERROR reading bytes: {}", error)
                         };
+                        println!("Read {} bytes", size);
 
-                        let contents = match str::from_utf8(&buf) {
-                            Ok(s) => s,
-                            Err(error) => {
-                                println!("ERROR reading UTF8: {}", error);
-                                ""
+                        match str::from_utf8(&buf) {
+                            Ok(contents) => {
+                                println!("Connection established:\n\nCONTENTS:\n--------\n{}", contents);
                             }
-                        };
-                        println!("Connection established:\n\nCONTENTS:\n--------\n{}", contents);
+                            Err(error) => {
+                                panic!("ERROR reading UTF8: {}", error);
+                            }
+                        }
                     }
                     Err(error) => {
                         println!("ERROR getting stream: {}", error);
