@@ -1,6 +1,8 @@
 use std::{
-    str,
-    net::TcpListener
+    // str,
+    io::{prelude::*, BufReader},
+    // io::Write,
+    net::{TcpListener, TcpStream}
 };
 
 fn main() {
@@ -9,21 +11,26 @@ fn main() {
             for stream in listener.incoming() {
                 match stream {
                     Ok(stream) => {
-                        let mut buf = [0; 1000];
-                        let size = match stream.peek(&mut buf) {
-                            Ok(size) => size,
-                            Err(error) =>  panic!("ERROR reading bytes: {}", error)
-                        };
-                        println!("Read {} bytes", size);
+                        handle_connection(stream);
 
-                        match str::from_utf8(&buf) {
-                            Ok(contents) => {
-                                println!("Connection established:\n\nCONTENTS:\n--------\n{}", contents);
-                            }
-                            Err(error) => {
-                                panic!("ERROR reading UTF8: {}", error);
-                            }
-                        }
+                        // let mut buf = [0; 1000];
+                        // let size = match stream.peek(&mut buf) {
+                        //     Ok(size) => size,
+                        //     Err(error) =>  panic!("ERROR reading bytes: {}", error)
+                        // };
+                        // println!("Read {} bytes", size);
+
+                        // match str::from_utf8(&buf) {
+                        //     Ok(contents) => {
+                        //         // SUCCESSFUL CONNECTION
+                        //         println!("Connection established:\n\nCONTENTS:\n--------\n{}", contents);
+                        //         let bytes = "Hello world".as_bytes();
+                        //         let _ = stream.write(&bytes);
+                        //     }
+                        //     Err(error) => {
+                        //         panic!("ERROR reading UTF8: {}", error);
+                        //     }
+                        // }
                     }
                     Err(error) => {
                         println!("ERROR getting stream: {}", error);
@@ -36,3 +43,16 @@ fn main() {
         }
     }
 }
+
+fn handle_connection(mut stream: TcpStream) {
+    let buf_reader = BufReader::new(&mut stream);
+    let http_request: Vec<_> = buf_reader
+        .lines()
+        .map_while(Result::ok)
+        // .map(|result| result.unwrap())
+        .take_while(|line| !line.is_empty())
+        .collect();
+
+    println!("Request: {http_request:#?}");
+}
+
