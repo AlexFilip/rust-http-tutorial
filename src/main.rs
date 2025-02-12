@@ -1,9 +1,15 @@
 use std::{
-    // str,
-    convert::identity, io::{prelude::*, BufReader}, net::{SocketAddr, TcpListener, TcpStream}
+    str,
+    convert::identity,
+    io::{prelude::*, BufReader},
+    net::{SocketAddr, TcpListener, TcpStream}
 };
 
-use chrono::{/* NaiveDateTime, TimeZone, */ Utc};
+use chrono::{
+    // NaiveDateTime,
+    // TimeZone,
+    Utc
+};
 
 fn main() {
     // let host = [127, 0, 0, 1];
@@ -15,35 +21,14 @@ fn main() {
     println!("Listening on {}", address_str);
 
     let address = SocketAddr::from((host, port));
-
     match TcpListener::bind(address) {
         Ok(listener) =>
             for stream in listener.incoming() {
                 match stream {
                     Ok(stream) => {
                         println!("Connection established");
-                        // TODO: Handle error, if any
                         let _ = handle_connection(stream);
-
-                        // let mut buf = [0; 1000];
-                        // let size = match stream.peek(&mut buf) {
-                        //     Ok(size) => size,
-                        //     Err(error) =>  panic!("ERROR reading bytes: {}", error)
-                        // };
-                        // println!("Read {} bytes", size);
-
-                        // match str::from_utf8(&buf) {
-                        //     Ok(contents) => {
-                        //         // SUCCESSFUL CONNECTION
-                        //         println!("Connection established:\n\nCONTENTS:\n--------\n{}", contents);
-                        //         let bytes = "Hello world".as_bytes();
-                        //         let _ = stream.write(&bytes);
-                        //     }
-                        //     Err(error) => {
-                        //         panic!("ERROR reading UTF8: {}", error);
-                        //     }
-                        // }
-
+                        // TODO: Handle error, if any
                     }
                     Err(error) => {
                         println!("ERROR getting stream: {}", error);
