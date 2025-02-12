@@ -1,0 +1,8 @@
+#!/bin/sh
+
+docker run -it --rm \
+         -u $(id -u):$(id -g) \
+         -v .:/workdir \
+         -w /workdir \
+         -p 7878:7878 \
+         rust:latest

@@ -2,15 +2,24 @@ use std::{
     // str,
     io::{prelude::*, BufReader},
     // io::Write,
-    net::{TcpListener, TcpStream}
+    net::{SocketAddr, TcpListener, TcpStream}
 };
 
 fn main() {
-    match TcpListener::bind("127.0.0.1:7878") {
+    // let host = "127.0.0.1";
+    // let host = "0.0.0.0";
+    // let address = std::fmt::format(format_args!("{}:{}", host, port));
+
+    let host = [0, 0, 0, 0];
+    let port = 7878;
+    let address = SocketAddr::from((host, port));
+
+    match TcpListener::bind(address) {
         Ok(listener) =>
             for stream in listener.incoming() {
                 match stream {
                     Ok(stream) => {
+                        println!("Connection established");
                         handle_connection(stream);
 
                         // let mut buf = [0; 1000];
