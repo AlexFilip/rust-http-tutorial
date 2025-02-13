@@ -48,10 +48,10 @@ struct ResponseCode {
     message: &'static str
 }
 
-const CODE_200: ResponseCode = ResponseCode { code: 200, message: "OK" };
-const CODE_400: ResponseCode = ResponseCode { code: 400, message: "Bad Request" };
-// const CODE_403: ResponseCode = ResponseCode { code: 403, message: "Forbidden" };
-const CODE_404: ResponseCode = ResponseCode { code: 404, message: "Not Found" };
+const RESPONSE_CODE_200: ResponseCode = ResponseCode { code: 200, message: "OK" };
+const RESPONSE_CODE_400: ResponseCode = ResponseCode { code: 400, message: "Bad Request" };
+// const RESPONSE_CODE_403: ResponseCode = ResponseCode { code: 403, message: "Forbidden" };
+const RESPONSE_CODE_404: ResponseCode = ResponseCode { code: 404, message: "Not Found" };
 
 #[derive(Copy, Clone)]
 struct HTTPVersion {
@@ -124,10 +124,15 @@ fn handle_connection(mut stream: TcpStream) -> Result<(), ()> {
         .collect();
     println!("Request: {http_request:#?}");
 
-    // TODO: Check if empty first
+    if http_request.len() == 0 {
+        let response = create_response_string(HTTP_VERSION_1_1, RESPONSE_CODE_400, "Received empty request");
+        send_response(stream, response);
+        return Ok(())
+    }
+
     let first_line_parts: Vec<_> = http_request[0].split(" ").collect();
     if first_line_parts.len() != 3 {
-        let response = create_response_string(HTTP_VERSION_1_1, CODE_400, "First line does not have 3 parts");
+        let response = create_response_string(HTTP_VERSION_1_1, RESPONSE_CODE_400, "First line does not have 3 parts");
         send_response(stream, response);
         return Ok(())
     }
@@ -138,9 +143,9 @@ fn handle_connection(mut stream: TcpStream) -> Result<(), ()> {
     let http_version = parse_http_version(http_version_str)?;
 
     let response = if path == "/" {
-        create_response_string(http_version, CODE_200, "X")
+        create_response_string(http_version, RESPONSE_CODE_200, "<!DOCTYPE html> <html lang='en'> <head> <meta charset='utf-8'> <title>Hello!</title> </head> <body> <h1>Hello!</h1> <p>Hi from Rust</p> </body> </html>")
     } else {
-        create_response_string(http_version, CODE_404, "")
+        create_response_string(http_version, RESPONSE_CODE_404, "")
     };
 
     send_response(stream, response);
